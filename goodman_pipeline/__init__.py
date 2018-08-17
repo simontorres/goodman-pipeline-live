@@ -1,3 +1,4 @@
 from __future__ import absolute_import
 
-from ..watcher import F
+from . import watcher
+from . import zmq
