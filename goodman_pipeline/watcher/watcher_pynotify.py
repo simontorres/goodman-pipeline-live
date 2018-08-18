@@ -6,6 +6,7 @@ import argparse
 import logging
 import os
 import pyinotify
+import time
 
 from astropy.io.registry import IORegistryError
 from ccdproc import CCDData
@@ -34,7 +35,7 @@ class EventHandler(pyinotify.ProcessEvent):
         if ".fits" in full_path:
             try:
                 ccd = CCDData.read(full_path, unit='adu')
-                message = "COMMAND {:s}".format(full_path)
+                message = "NEW {:s}".format(full_path)
                 self.publisher.broadcast(message=message)
             except IORegistryError:
                 self.log.warning("Unable to read file or is not a FITS file: "
@@ -63,6 +64,9 @@ class FileSystemEventNotifier(object):
     def __call__(self):
 
         self.log.info("Starting to monitor directory: {:s}".format(self.args.path))
+        print("SETUP PATH {:s}".format(self.args.path))
+        self._publisher.broadcast(message="SETUP PATH {:s}".format(self.args.path))
+        time.sleep(2)
         self._watch_manager.add_watch(self.args.path, self._file_events)
 
         self._notifier.loop()

@@ -105,7 +105,16 @@ class ZmqSubscriber(object):
         self.socket = self.context.socket(zmq.SUB)
         self.socket.connect(self.server)
         # limit subscription to INSERT queries
-        # self.socket.setsockopt(zmq.SUBSCRIBE, 'INSERT')
+        self.socket.setsockopt_string(zmq.SUBSCRIBE, "SETUP")
+        self.socket.setsockopt_string(zmq.SUBSCRIBE, "NEW")
+
+    def listen(self):
+         while True:
+            try:
+                message = self.socket.recv()
+                yield message
+            except KeyboardInterrupt:
+                sys.exit("End of subscription to {:s}".format(self.server))
 
     def listen_and_print(self):
         """Listen to the publisher and prints any incomming message."""
